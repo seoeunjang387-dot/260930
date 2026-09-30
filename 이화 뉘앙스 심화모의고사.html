@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이화여고 단어장 · 뉘앙스 심화 모의고사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&family=Source+Serif+4:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EE; --line:#D8D3C3; --ink:#1E2530; --ink-soft:#6B7280;
+    --navy:#1F3A5F; --navy-deep:#15283F; --navy-pale:#E4EAF1;
+    --crimson:#B3242A; --crimson-pale:#F6E0DF; --teal:#1F6F8B; --teal-pale:#DDEAEE;
+    --rose:#F3DEE0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;}
+  body{font-family:'Noto Sans KR',sans-serif;color:var(--ink);}
+  #app{max-width:640px;margin:0 auto;padding:16px 14px 60px;}
+  .examhead{border:2.5px solid var(--ink);border-radius:4px;margin-bottom:16px;overflow:hidden;}
+  .examhead .bar{background:var(--rose);padding:9px 12px;font-family:'Gowun Batang',serif;font-weight:700;font-size:14px;display:flex;justify-content:space-between;}
+  .examhead .info{padding:8px 12px;font-size:11.5px;color:var(--ink-soft);border-top:1.5px solid var(--ink);}
+  .eyebrow{font-family:'Gowun Batang',serif;font-size:13px;color:var(--navy);}
+  h1{font-family:'Gowun Batang',serif;font-size:21px;line-height:1.35;margin:2px 0 4px;font-weight:700;}
+  .sub{color:var(--ink-soft);font-size:13.5px;line-height:1.6;margin-bottom:14px;}
+  .types-list{font-size:12px;color:var(--ink-soft);line-height:2;margin-bottom:16px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;}
+  .types-list b{color:var(--navy);}
+  .btn{display:inline-block;width:100%;text-align:center;font-weight:700;font-size:15px;padding:13px 16px;border-radius:8px;border:none;cursor:pointer;}
+  .btn-primary{background:var(--navy);color:#fff;}
+  .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-row{display:flex;gap:8px;margin-top:10px;}
+  .btn-row .btn{flex:1;}
+  .quiz-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .quiz-top .qcount{font-size:12.5px;color:var(--ink-soft);}
+  .quiz-top .qscore{font-size:12.5px;color:var(--navy);font-weight:700;}
+  .progress-track{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+  .progress-fill{height:100%;background:var(--navy);border-radius:3px;transition:width .2s ease;}
+  .qtype{display:inline-block;font-size:10.5px;color:var(--navy);border:1px solid var(--navy);border-radius:20px;padding:3px 10px;margin-bottom:10px;}
+  .qtext{font-size:14.5px;font-weight:700;margin-bottom:10px;line-height:1.5;}
+  .box-card{background:#fff;border:1.5px solid var(--ink);border-radius:6px;padding:14px 16px;margin-bottom:12px;font-family:'Source Serif 4',serif;font-size:14px;line-height:1.85;}
+  .box-card .ln{margin-bottom:4px;}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 14px;margin-bottom:7px;font-size:13.5px;color:var(--ink);cursor:pointer;font-family:'Source Serif 4',serif;line-height:1.5;}
+  .opt.correct{background:var(--teal-pale);border-color:var(--teal);color:var(--navy-deep);font-weight:700;}
+  .opt.wrong{background:var(--crimson-pale);border-color:var(--crimson);color:var(--crimson);font-weight:700;}
+  .opt[disabled]{cursor:default;}
+  .opt .num{font-family:'Noto Sans KR',sans-serif;font-weight:900;margin-right:6px;color:var(--navy);}
+  .check-opt{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 14px;margin-bottom:7px;font-size:13.5px;cursor:pointer;font-family:'Source Serif 4',serif;}
+  .check-opt .box{width:17px;height:17px;flex:0 0 17px;border-radius:5px;border:1.5px solid var(--ink-soft);margin-top:2px;position:relative;}
+  .check-opt.picked .box{background:var(--navy);border-color:var(--navy);}
+  .check-opt.picked .box::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:900;}
+  .check-opt.correct{border-color:var(--teal);background:var(--teal-pale);}
+  .check-opt.wrong{border-color:var(--crimson);background:var(--crimson-pale);}
+  .check-opt.missed{border-color:var(--navy);}
+  .tip-box{background:var(--navy-pale);border:1.5px dashed var(--navy);border-radius:8px;padding:11px 13px;font-size:12.5px;line-height:1.6;color:var(--navy-deep);margin:10px 0 4px;}
+  .tip-box b{color:var(--navy);}
+  .result-num{font-family:'Gowun Batang',serif;font-size:44px;text-align:center;font-weight:700;margin:6px 0 2px;color:var(--navy);}
+  .result-label{text-align:center;color:var(--ink-soft);font-size:13px;margin-bottom:12px;}
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .back{font-size:13px;color:var(--ink-soft);cursor:pointer;padding:4px 0;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ---------------- DATA: 24 nuance groups from the uploaded notes ---------------- */
+const CLUSTERS = [
+ {tip:"describe=설명, represent=대표·상징, indicate=신호·시사, reveal=숨겨진 것을 드러냄, disclose=정보를 공식적으로 공개.", s:{
+   describe:"Please ___ the missing dog so we can help you find it.",
+   represent:"The white dove is often used to ___ peace.",
+   indicate:"Dark clouds often ___ that rain is coming.",
+   reveal:"The investigation began to ___ facts nobody had expected.",
+   disclose:"The company refused to ___ its financial details to the public."}},
+ {tip:"former=앞서 언급한 것(또는 과거의), latter=뒤에 언급한 것.", s:{
+   former:"Of the two applicants, the ___ was chosen for the position.",
+   latter:"Between honesty and kindness, I value the ___ more."}},
+ {tip:"concern=걱정·관련되다, regard=~라고 여기다, appreciate=가치를 알아보다·감사하다.", s:{
+   concern:"This new policy will ___ every employee in the company.",
+   regard:"Many scientists ___ this theory as outdated.",
+   appreciate:"I really ___ the time you took to help me."}},
+ {tip:"assert=강하게 주장, affirm=맞다고 확인, confirm=사실 확인, acknowledge=인정, confess=잘못을 자백.", s:{
+   assert:"She continued to ___ her innocence throughout the trial.",
+   affirm:"He was asked to ___ that the contract was signed willingly.",
+   confirm:"Could you please ___ your attendance by Friday?",
+   acknowledge:"The teacher asked him to ___ his mistake in class.",
+   confess:"Eventually, the thief decided to ___ to the crime."}},
+ {tip:"resist=유혹·압력에 저항, oppose=의견·정책에 반대.", s:{
+   resist:"It was hard for her to ___ the temptation of the dessert.",
+   oppose:"Several senators plan to ___ the new tax proposal."}},
+ {tip:"demand=강하게 요구, obligation=반드시 해야 하는 의무, permit=허락하다, ban=금지하다.", s:{
+   demand:"Workers began to ___ higher wages from the company.",
+   obligation:"As a citizen, you have an ___ to obey the law.",
+   permit:"This pass will ___ you to enter the restricted area.",
+   ban:"The city decided to ___ smoking in public parks."}},
+ {tip:"adequate=필요한 만큼 충분함(기준 충족), substantial=양·정도 자체가 큼.", s:{
+   adequate:"The shelter did not have ___ supplies for all the refugees.",
+   substantial:"The company reported a ___ increase in profit this year."}},
+ {tip:"obvious=누가 봐도 명백함, evident=근거로 보아 분명함, apparent=겉으로 드러나 보임, remarkable=두드러지게 특별함.", s:{
+   obvious:"It was ___ to everyone that he was upset.",
+   evident:"The damage to the car made it ___ that the accident was serious.",
+   apparent:"Her nervousness became ___ as she began to speak.",
+   remarkable:"The team made ___ progress in just one month."}},
+ {tip:"entire=전체 하나, overall=전체적인 관점, throughout=공간·시간 전체에 걸쳐.", s:{
+   entire:"She spent the ___ afternoon cleaning her room.",
+   overall:"The ___ quality of the product has improved this year.",
+   throughout:"The festival will continue ___ the entire weekend."}},
+ {tip:"enormous=크기 자체가 엄청남, immense=정도가 헤아릴 수 없이 큼, vast=넓고 광대한 범위.", s:{
+   enormous:"The blue whale is an ___ animal.",
+   immense:"He felt ___ relief after hearing the good news.",
+   vast:"The desert stretched across a ___ area of land."}},
+ {tip:"frequent=횟수가 잦음, widespread=퍼져 있는 범위가 넓음.", s:{
+   frequent:"He made ___ mistakes while learning to drive.",
+   widespread:"The disease quickly became ___ across the country."}},
+ {tip:"gradual=점진적(↔immediate), immediate=즉각적, instant=순간적.", s:{
+   gradual:"The company made a ___ shift toward renewable energy.",
+   immediate:"The manager demanded an ___ response to the complaint.",
+   instant:"The song became an ___ success right after its release."}},
+ {tip:"damage=물건·시스템에 손상, offense=공격·범죄·불쾌감을 주는 행동.", s:{
+   damage:"The storm caused severe ___ to the old bridge.",
+   offense:"His rude comment was taken as a serious ___ by his coworkers."}},
+ {tip:"enhance=있는 것의 질·효과를 높임, enrich=더 풍부하게 만듦.", s:{
+   enhance:"Regular exercise can ___ your overall performance.",
+   enrich:"Traveling to new places can ___ your understanding of the world."}},
+ {tip:"hinder=진행을 어렵게 함, disrupt=흐름 전체를 깨뜨림, interrupt=중간에 끊음.", s:{
+   hinder:"Heavy traffic began to ___ our progress toward the airport.",
+   disrupt:"The power outage began to ___ the entire production line.",
+   interrupt:"Please don't ___ me while I'm on the phone."}},
+ {tip:"abandon=버리고 떠남, discard=물건을 버림, reject=제안·의견을 거부.", s:{
+   abandon:"The family had to ___ their home during the flood.",
+   discard:"She decided to ___ the clothes she no longer wore.",
+   reject:"The committee chose to ___ his proposal."}},
+ {tip:"acquire=노력을 들여 얻음, grant=권한 있는 사람이 줌, provide=필요한 것을 제공.", s:{
+   acquire:"It took her years to ___ fluency in French.",
+   grant:"The king decided to ___ the village special privileges.",
+   provide:"The school will ___ all students with new textbooks."}},
+ {tip:"combine=여러 요소를 결합, blend=섞여서 조화를 이룸, merge=합쳐져 하나가 됨.", s:{
+   combine:"You can ___ the two ingredients to make a smooth batter.",
+   blend:"The colors seemed to ___ perfectly into one another.",
+   merge:"The two small companies decided to ___ into one large firm."}},
+ {tip:"clarify=명확하게 해줌, comprehend=이해함, grasp=핵심을 빠르게 파악함.", s:{
+   clarify:"Let me ___ what I meant by that statement.",
+   comprehend:"It took him a while to ___ the difficult passage.",
+   grasp:"She quickly began to ___ the main idea of the lecture."}},
+ {tip:"strive=목표를 향해 노력, struggle=어려움과 힘겹게 싸움.", s:{
+   strive:"Athletes ___ to break their personal records every season.",
+   struggle:"Many families continue to ___ with rising living costs."}},
+ {tip:"estimate=대략적으로 추정, measure=정확히 측정.", s:{
+   estimate:"Experts ___ that the project will take two years to complete.",
+   measure:"Scientists used special tools to ___ the temperature precisely."}},
+ {tip:"artificial=인공적으로 만들어짐, imaginary=상상 속의 것, virtual=디지털·가상 환경의 것.", s:{
+   artificial:"The lake was actually ___, built by engineers decades ago.",
+   imaginary:"As a child, she had an ___ friend she talked to every day.",
+   virtual:"Many students now attend ___ classes online."}},
+ {tip:"precise=정밀하고 구체적, accurate=사실과 맞음, factual=사실에 근거함.", s:{
+   precise:"The surgeon's ___ movements made the operation a success.",
+   accurate:"Please give me an ___ account of what happened.",
+   factual:"The report was based on ___ information, not rumors."}}
+];
+const clusterMap={};
+CLUSTERS.forEach((c,i)=>Object.keys(c.s).forEach(en=>{ clusterMap[en]=i; }));
+const ALL_WORDS = Object.keys(clusterMap);
+
+const CIRCLED=['①','②','③','④','⑤'];
+const LETTERS=['ⓐ','ⓑ','ⓒ','ⓓ','ⓔ'];
+
+let PROGRESS = {best:0, attempts:0};
+function loadProgress(){ try{ const raw=localStorage.getItem('ewha_vocab_nuance_progress'); if(raw) PROGRESS=JSON.parse(raw);}catch(e){} }
+function saveProgress(){ try{ localStorage.setItem('ewha_vocab_nuance_progress', JSON.stringify(PROGRESS)); }catch(e){} }
+
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function sample(arr,n){ return shuffle(arr).slice(0,n); }
+function permutations(arr){ if(arr.length<=1) return [arr.slice()]; let res=[]; arr.forEach((v,i)=>{ const rest=arr.slice(0,i).concat(arr.slice(i+1)); permutations(rest).forEach(p=>res.push([v,...p])); }); return res; }
+
+/* ---------------- TYPE A: 단순 빈칸 채우기 ---------------- */
+function buildBlank(){
+  const ci = Math.floor(Math.random()*CLUSTERS.length);
+  const cluster = CLUSTERS[ci];
+  const members = Object.keys(cluster.s);
+  const word = sample(members,1)[0];
+  const template = cluster.s[word];
+  let distractors = sample(members.filter(w=>w!==word), Math.min(3, members.length-1));
+  if(distractors.length<3){
+    const exclude = new Set([word,...distractors]);
+    distractors = distractors.concat(sample(ALL_WORDS.filter(w=>!exclude.has(w)), 3-distractors.length));
+  }
+  const options = shuffle([word,...distractors]);
+  const answer = options.indexOf(word);
+  return {type:'blank', qtext:'다음 빈칸에 들어갈 말로 가장 적절한 것은?', sentences:[template.replace('___','_____')], options, answer, tip:cluster.tip};
+}
+
+/* ---------------- TYPE B: 같은 그룹 안에서 어색한 문장 찾기 ---------------- */
+function buildOddWithin(){
+  const eligible = CLUSTERS.filter(c=>Object.keys(c.s).length>=3);
+  const cluster = sample(eligible,1)[0];
+  const members = shuffle(Object.keys(cluster.s));
+  const corrupt = Math.floor(Math.random()*members.length);
+  const sentences = members.map((en,idx)=>{
+    const template = cluster.s[en];
+    if(idx===corrupt){
+      const others = members.filter((e,i2)=>i2!==idx);
+      return template.replace('___', sample(others,1)[0]);
+    }
+    return template.replace('___', en);
+  });
+  return {type:'oddwithin', qtext:'다음 밑줄 친 단어가 쓰인 문장의 맥락이 어색한 것은?', sentences, answer: corrupt, tip: cluster.tip};
+}
+
+/* ---------------- TYPE C: 서로 다른 그룹 단어들 중 문맥상 어색한 것 찾기 ---------------- */
+function buildOddAcross(){
+  const idxs = sample(CLUSTERS.map((_,i)=>i), 5);
+  const chosen = idxs.map(ci=>({ci, en: sample(Object.keys(CLUSTERS[ci].s),1)[0]}));
+  const corrupt = Math.floor(Math.random()*5);
+  const sentences = chosen.map((c,idx)=>{
+    const template = CLUSTERS[c.ci].s[c.en];
+    if(idx===corrupt){
+      const others = chosen.filter((_,i2)=>i2!==idx).map(o=>o.en);
+      return template.replace('___', sample(others,1)[0]);
+    }
+    return template.replace('___', c.en);
+  });
+  return {type:'oddacross', qtext:'다음 중 밑줄 친 단어의 쓰임이 문맥상 적절하지 않은 것은?', sentences, answer: corrupt};
+}
+
+/* ---------------- TYPE D: 빈칸 조합 계열 (3가지 서브유형 랜덤) ---------------- */
+function buildTriplet(){
+  const eligible = CLUSTERS.filter(c=>Object.keys(c.s).length>=3);
+  const cluster = sample(eligible,1)[0];
+  const members = shuffle(Object.keys(cluster.s)).slice(0,3);
+  const sentences = members.map((en,i)=> `${i+1}. ${cluster.s[en].replace('___','_____')}`);
+  const correct = members.slice();
+  let perms = permutations(members).filter(p=>p.join('|')!==correct.join('|'));
+  perms = sample(perms, Math.min(4,perms.length));
+  let optionArrs = shuffle([correct, ...perms]);
+  const answer = optionArrs.findIndex(p=>p.join('|')===correct.join('|'));
+  const options = optionArrs.map(p=>p.join(', '));
+  return {type:'combo', qtext:'다음 각 단어가 문장에서 한 번씩만 쓰일 때, 빈칸 1~3에 순서대로 들어갈 단어로 조합된 것은?', sentences, options, answer, tip: cluster.tip};
+}
+function buildTwoCorrect(){
+  const eligible = CLUSTERS.filter(c=>Object.keys(c.s).length>=4);
+  let members, sentences, tip;
+  if(eligible.length){
+    const cluster = sample(eligible,1)[0];
+    members = shuffle(Object.keys(cluster.s)).slice(0, Math.min(5, Object.keys(cluster.s).length));
+    sentences = members.map((en,i)=> `${LETTERS[i]} ${cluster.s[en].replace('___','_____')}`);
+    tip = cluster.tip;
+  } else {
+    const idxs = sample(CLUSTERS.map((_,i)=>i),5);
+    const chosen = idxs.map(ci=>({ci, en: sample(Object.keys(CLUSTERS[ci].s),1)[0]}));
+    members = chosen.map(c=>c.en);
+    sentences = chosen.map((c,i)=> `${LETTERS[i]} ${CLUSTERS[c.ci].s[c.en].replace('___','_____')}`);
+    tip = null;
+  }
+  const n = members.length;
+  const correctPositions = sample(Array.from({length:n},(_,i)=>i), Math.min(2,n));
+  let options = members.map((en,i)=>{
+    if(correctPositions.includes(i)) return {text:`${LETTERS[i]} - ${en}`, ok:true};
+    const wrongPool = members.filter((e,i2)=>i2!==i);
+    return {text:`${LETTERS[i]} - ${sample(wrongPool,1)[0]}`, ok:false};
+  });
+  options = shuffle(options);
+  return {type:'combomulti', qtext:'빈칸에 들어갈 단어로 적절한 것 두 개는?', sentences, options, tip};
+}
+function buildNoFit(){
+  const eligible = CLUSTERS.filter(c=>Object.keys(c.s).length>=3);
+  const ci = CLUSTERS.indexOf(sample(eligible,1)[0]);
+  const cluster = CLUSTERS[ci];
+  const members = shuffle(Object.keys(cluster.s));
+  const sentences = members.map((en,i)=> `${i+1}. ${cluster.s[en].replace('___','_____')}`);
+  const outsiderPool = ALL_WORDS.filter(en=> clusterMap[en]!==ci);
+  const outsider = sample(outsiderPool,1)[0];
+  const options = shuffle([...members, outsider]);
+  const answer = options.indexOf(outsider);
+  return {type:'combo', qtext:'다음 밑줄 친 빈칸 어디에도 들어갈 수 없는 것은?', sentences, options, answer, tip: cluster.tip};
+}
+function buildComboFamily(){
+  const fns=[buildTriplet, buildTwoCorrect, buildNoFit];
+  return sample(fns,1)[0]();
+}
+
+/* ---------------- QUIZ BUILDER ---------------- */
+function buildQuiz(){
+  const order = shuffle(['blank','blank','blank','blank','blank','oddwithin','oddwithin','oddwithin','oddwithin','oddwithin','oddacross','oddacross','oddacross','oddacross','oddacross','combo','combo','combo','combo','combo']);
+  return order.map(t=>{
+    if(t==='blank') return buildBlank();
+    if(t==='oddwithin') return buildOddWithin();
+    if(t==='oddacross') return buildOddAcross();
+    return buildComboFamily();
+  });
+}
+
+/* ---------------- STATE & RENDER ---------------- */
+const state = { view:'home', quiz:[], qi:0, score:0, answered:false, selected:null, picked:new Set() };
+const app=document.getElementById('app');
+function render(){
+  if(state.view==='home') return renderHome();
+  if(state.view==='quiz') return renderQuiz();
+  if(state.view==='result') return renderResult();
+}
+function renderHome(){
+  app.innerHTML = `
+    <div class="examhead">
+      <div class="bar"><span>★ 이화여고 뉘앙스 심화 대비</span><span>24개 그룹</span></div>
+      <div class="info">선택형 20문항 · 빈칸 채우기 · 어색한 문장 찾기 · 조합 고르기 무작위 출제</div>
+    </div>
+    <div class="eyebrow">뉘앙스 심화 모의고사</div>
+    <h1>헷갈리는 단어, 문맥으로 구별하기</h1>
+    <div class="sub">업로드해주신 뉘앙스 노트(describe/represent/indicate, assert/affirm/confirm 등 24개 그룹)를 바탕으로 만들었어요. 매번 새로 섞여서 나와요.</div>
+    <div class="types-list">
+      <div><b>유형 A</b> — 빈칸에 들어갈 말로 가장 적절한 것 고르기</div>
+      <div><b>유형 B</b> — 같은 뉘앙스 그룹 안에서 어색한 문장 찾기</div>
+      <div><b>유형 C</b> — 서로 다른 그룹 단어들 중 문맥에 안 맞는 것 찾기</div>
+      <div><b>유형 D</b> — 3단어 조합 고르기 / 두 개 고르기 / 어디에도 안 맞는 것 고르기</div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">모의고사 시작하기 (20문항)</button>
+    ${PROGRESS.attempts>0 ? `<div class="sub" style="text-align:center;margin-top:10px;">최고 점수 ${PROGRESS.best}/20 · 총 ${PROGRESS.attempts}회 응시</div>` : ''}
+  `;
+}
+function renderQuiz(){
+  const q = state.quiz[state.qi];
+  const pct = Math.round((state.qi/state.quiz.length)*100);
+  const labelOf = t=> t==='blank'?'유형 A': t==='oddwithin'?'유형 B': t==='oddacross'?'유형 C':'유형 D';
+  let body='';
+  if(q.type==='blank'){
+    body = `<div class="qtype">${labelOf(q.type)}</div><div class="qtext">${q.qtext}</div>
+      <div class="box-card">${q.sentences.map(s=>`<div class="ln">${s}</div>`).join('')}</div>
+      ${q.options.map((en,i)=>{
+        let cls='opt'; if(state.answered){ if(i===q.answer) cls+=' correct'; else if(i===state.selected) cls+=' wrong'; }
+        return `<button class="${cls}" ${state.answered?'disabled':''} onclick="answerSingle(${i})"><span class="num">${CIRCLED[i]}</span>${en}</button>`;
+      }).join('')}`;
+  } else if(q.type==='oddwithin' || q.type==='oddacross'){
+    body = `<div class="qtype">${labelOf(q.type)}</div><div class="qtext">${q.qtext}</div>
+      ${q.sentences.map((s,i)=>{
+        let cls='opt'; if(state.answered){ if(i===q.answer) cls+=' correct'; else if(i===state.selected) cls+=' wrong'; }
+        return `<button class="${cls}" ${state.answered?'disabled':''} onclick="answerSingle(${i})"><span class="num">${CIRCLED[i]}</span>${s}</button>`;
+      }).join('')}`;
+  } else if(q.type==='combo' && q.options && typeof q.options[0]==='string'){
+    body = `<div class="qtype">유형 D</div><div class="qtext">${q.qtext}</div>
+      <div class="box-card">${q.sentences.map(s=>`<div class="ln">${s}</div>`).join('')}</div>
+      ${q.options.map((o,i)=>{
+        let cls='opt'; if(state.answered){ if(i===q.answer) cls+=' correct'; else if(i===state.selected) cls+=' wrong'; }
+        return `<button class="${cls}" ${state.answered?'disabled':''} onclick="answerSingle(${i})"><span class="num">${CIRCLED[i]}</span>${o}</button>`;
+      }).join('')}`;
+  } else if(q.type==='combomulti'){
+    body = `<div class="qtype">유형 D</div><div class="qtext">${q.qtext}</div>
+      <div class="box-card">${q.sentences.map(s=>`<div class="ln">${s}</div>`).join('')}</div>
+      ${q.options.map((o,i)=>{
+        let cls='check-opt'+(state.picked.has(i)?' picked':'');
+        if(state.answered){ if(o.ok && state.picked.has(i)) cls+=' correct'; else if(!o.ok && state.picked.has(i)) cls+=' wrong'; else if(o.ok && !state.picked.has(i)) cls+=' missed'; }
+        return `<div class="${cls}" onclick="${state.answered?'':'togglePick('+i+')'}"><div class="box"></div><div>${o.text}</div></div>`;
+      }).join('')}
+      ${!state.answered ? `<button class="btn btn-primary" onclick="submitMulti()">확인</button>` : ''}`;
+  }
+  let tipHtml=''; if(state.answered && q.tip){ tipHtml = `<div class="tip-box">${q.tip}</div>`; }
+  app.innerHTML = `
+    <div class="topbar"><span class="back" onclick="goHome()">← 그만하기</span></div>
+    <div class="quiz-top"><span class="qcount">문항 ${state.qi+1}/${state.quiz.length}</span><span class="qscore">맞은 개수 ${state.score}</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    ${body}
+    ${tipHtml}
+    ${state.answered ? `<button class="btn btn-primary" style="margin-top:12px" onclick="nextQuestion()">${state.qi+1<state.quiz.length?'다음 문항':'결과 보기'}</button>` : ''}
+  `;
+}
+function renderResult(){
+  const total = state.quiz.length;
+  app.innerHTML = `
+    <div class="eyebrow">모의고사 결과</div>
+    <div class="result-num">${state.score} / ${total}</div>
+    <div class="result-label">${state.score>=17?'뉘앙스까지 완벽해요!':state.score>=12?'좋아요, 조금만 더 다지면 완벽해요.':'틀린 그룹 위주로 노트를 다시 훑어보세요.'}</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goHome()">홈으로</button>
+      <button class="btn btn-primary" onclick="startQuiz()">다시 풀기</button>
+    </div>
+  `;
+}
+function goHome(){ state.view='home'; render(); }
+function startQuiz(){
+  state.quiz=buildQuiz(); state.qi=0; state.score=0; state.answered=false; state.selected=null; state.picked=new Set();
+  state.view='quiz'; render();
+}
+function answerSingle(i){
+  if(state.answered) return;
+  const q = state.quiz[state.qi];
+  state.selected=i; state.answered=true;
+  if(i===q.answer) state.score++;
+  render();
+}
+function togglePick(i){ if(state.picked.has(i)) state.picked.delete(i); else state.picked.add(i); render(); }
+function submitMulti(){
+  const q = state.quiz[state.qi];
+  const ok = q.options.every((o,i)=> o.ok===state.picked.has(i));
+  state.answered=true;
+  if(ok) state.score++;
+  render();
+}
+function nextQuestion(){
+  if(state.qi+1 < state.quiz.length){ state.qi++; state.answered=false; state.selected=null; state.picked=new Set(); render(); }
+  else { finishQuiz(); }
+}
+function finishQuiz(){
+  PROGRESS.best = Math.max(PROGRESS.best||0, state.score);
+  PROGRESS.attempts = (PROGRESS.attempts||0)+1;
+  saveProgress();
+  state.view='result'; render();
+}
+window.goHome=goHome; window.startQuiz=startQuiz; window.answerSingle=answerSingle;
+window.togglePick=togglePick; window.submitMulti=submitMulti; window.nextQuestion=nextQuestion;
+(function init(){ loadProgress(); render(); })();
+</script>
+</body>
+</html>
